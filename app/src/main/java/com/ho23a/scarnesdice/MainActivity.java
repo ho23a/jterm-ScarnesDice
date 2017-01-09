@@ -1,5 +1,6 @@
 package com.ho23a.scarnesdice;
 
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,18 +14,20 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private static final int MAX_ROLL = 6;
-    private static final int WIN_SCORE = 20;
+    private static final int WIN_SCORE = 50;
+    private static final double DECISION_SCORE = 10.5;
+    private final Handler timerHandler = new Handler();
     private int playerTotal;
     private int computerTotal;
     private int currentTurn;
     private Players whosTurn;
     private Random random = new Random();
-    private Toast toast;
     private ImageView diceView;
     private EditText turnScoreText;
+    private boolean gameWon;
 
     enum Players {
-        PLAYER,
+        YOU,
         COMPUTER,
     }
 
@@ -36,12 +39,10 @@ public class MainActivity extends AppCompatActivity {
         playerTotal = 0;
         computerTotal = 0;
         currentTurn = 0;
-        whosTurn = Players.PLAYER;
-        String message = "It's Your Turn";
-        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
-        toast.show();
+        whosTurn = Players.YOU;
         diceView = ((ImageView) findViewById(R.id.diceView));
         turnScoreText = ((EditText) findViewById(R.id.turnScoreText));
+        gameWon = false;
 
         ((Button) findViewById(R.id.rollButton)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,12 +66,34 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void computerTurnIn500() {
+        timerHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                computerTurn();
+                if (whosTurn == Players.COMPUTER && gameWon == false) {
+                    computerTurnIn500();
+                }
+            }
+        }, 1000);
+    }
+
+    private void computerTurn() {
+        roll();
+
+        if (computerTotal + currentTurn >= WIN_SCORE || (currentTurn > DECISION_SCORE)) {
+            addComputerScore(currentTurn);
+        }
+    }
+
     public void roll() {
         int rolled = rollDice();
 
         switch(rolled) {
             case(1):
                 diceView.setImageResource(R.drawable.dice1);
+                Toast toast = Toast.makeText(getApplicationContext(), whosTurn.toString() + " rolled an 1!", Toast.LENGTH_SHORT);
+                toast.show();
                 changePlayers();
                 break;
             case(2):
@@ -94,12 +117,12 @@ public class MainActivity extends AppCompatActivity {
 
         if (rolled != 1) {
             currentTurn += rolled;
-            turnScoreText.setText(Integer.toString(currentTurn), TextView.BufferType.EDITABLE);
+            turnScoreText.setText(Integer.toString(currentTurn));
         }
     }
 
     public void hold() {
-        if (whosTurn == Players.PLAYER) {
+        if (whosTurn == Players.YOU) {
             addPlayerScore(currentTurn);
         } else {
             addComputerScore(currentTurn);
@@ -115,27 +138,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void changePlayers() {
-        currentTurn = 0;
-        turnScoreText.setText(Integer.toString(currentTurn), TextView.BufferType.EDITABLE);
-
         String message;
-        if (whosTurn == Players.PLAYER) {
+        if (whosTurn == Players.YOU) {
             whosTurn = Players.COMPUTER;
-            message = "It's Computer's Turn";
+            message = "Computer's Turn";
+            computerTurnIn500();
         } else {
-            whosTurn = Players.PLAYER;
-            message = "It's Your Turn";
+            whosTurn = Players.YOU;
+            message = "Your Turn";
         }
-        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
-        toast.show();
+        ((TextView) findViewById(R.id.whosTurnText)).setText(message);
+
+        currentTurn = 0;
+        turnScoreText.setText(Integer.toString(currentTurn));
     }
 
     private void addPlayerScore(int currentTurn) {
         playerTotal += currentTurn;
-        ((EditText) findViewById(R.id.playerScoreText)).setText(Integer.toString(playerTotal), TextView.BufferType.EDITABLE);
+        ((EditText) findViewById(R.id.playerScoreText)).setText(Integer.toString(playerTotal));
+
         if (playerTotal >= WIN_SCORE) {
-            toast = Toast.makeText(getApplicationContext(), "You Won!", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(getApplicationContext(), "You Won!", Toast.LENGTH_LONG);
             toast.show();
+            gameWon = true;
+            disableButtons();
         } else {
             changePlayers();
         }
@@ -143,10 +169,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void addComputerScore(int currentTurn) {
         computerTotal += currentTurn;
-        ((EditText) findViewById(R.id.computerScoreText)).setText(Integer.toString(computerTotal), TextView.BufferType.EDITABLE);
+        ((EditText) findViewById(R.id.computerScoreText)).setText(Integer.toString(computerTotal));
+
         if (computerTotal >= WIN_SCORE) {
-            toast = Toast.makeText(getApplicationContext(), "Sorry, you lost! Computer Won!", Toast.LENGTH_LONG);
+            Toast toast = Toast.makeText(getApplicationContext(), "Sorry, you lost! Computer Won!", Toast.LENGTH_LONG);
             toast.show();
+            gameWon = true;
+            disableButtons();
         } else {
             changePlayers();
         }
@@ -155,10 +184,23 @@ public class MainActivity extends AppCompatActivity {
     private void resetScore() {
         playerTotal = 0;
         computerTotal = 0;
-        whosTurn = Players.PLAYER;
+        whosTurn = Players.YOU;
         currentTurn = 0;
-        ((EditText) findViewById(R.id.playerScoreText)).setText("0", TextView.BufferType.EDITABLE);
-        ((EditText) findViewById(R.id.computerScoreText)).setText("0", TextView.BufferType.EDITABLE);
-        turnScoreText.setText("0", TextView.BufferType.EDITABLE);
+        gameWon = false;
+        ((EditText) findViewById(R.id.playerScoreText)).setText("0");
+        ((EditText) findViewById(R.id.computerScoreText)).setText("0");
+        ((TextView) findViewById(R.id.whosTurnText)).setText("Your Turn");
+        turnScoreText.setText("0");
+        enableButtons();
+    }
+
+    private void disableButtons() {
+        ((Button) findViewById(R.id.rollButton)).setEnabled(false);
+        ((Button) findViewById(R.id.holdButton)).setEnabled(false);
+    }
+
+    private void enableButtons() {
+        ((Button) findViewById(R.id.rollButton)).setEnabled(true);
+        ((Button) findViewById(R.id.holdButton)).setEnabled(true);
     }
 }

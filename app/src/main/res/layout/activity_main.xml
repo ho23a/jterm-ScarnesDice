@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
+    android:gravity="center_horizontal"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,20 +13,19 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.ho23a.scarnesdice.MainActivity">
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/dice1"
+        android:id="@+id/diceView" />
+
+    <TextView
+        android:text="Your Turn"
+        android:gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/layout3">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/dice1"
-            android:id="@+id/diceView"
-            android:layout_weight="1.46" />
-
-    </LinearLayout>
+        android:id="@+id/whosTurnText"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -99,7 +99,7 @@
             android:ems="10"
             android:hint="0"
             android:id="@+id/computerScoreText"
-            android:layout_weight="1"
+            android:layout_weight="1.24"
             android:text="0"
             android:focusable="false"
             android:focusableInTouchMode="false"
