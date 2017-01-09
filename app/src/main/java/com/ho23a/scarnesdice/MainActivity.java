@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
     private Players whosTurn;
     private Random random = new Random();
     private Toast toast;
+    private ImageView diceView;
+    private EditText turnScoreText;
 
     enum Players {
         PLAYER,
@@ -37,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
         String message = "It's Your Turn";
         toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
         toast.show();
+        diceView = ((ImageView) findViewById(R.id.diceView));
+        turnScoreText = ((EditText) findViewById(R.id.turnScoreText));
 
         ((Button) findViewById(R.id.rollButton)).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,16 +67,35 @@ public class MainActivity extends AppCompatActivity {
 
     public void roll() {
         int rolled = rollDice();
-        ((EditText) findViewById(R.id.rollText)).setText(Integer.toString(rolled), TextView.BufferType.EDITABLE);
 
-        if (rolled == 1) {
-            changePlayers();
-        } else {
-            currentTurn += rolled;
-            ((EditText) findViewById(R.id.turnScoreText)).setText(Integer.toString(currentTurn), TextView.BufferType.EDITABLE);
+        switch(rolled) {
+            case(1):
+                diceView.setImageResource(R.drawable.dice1);
+                changePlayers();
+                break;
+            case(2):
+                diceView.setImageResource(R.drawable.dice2);
+                break;
+            case(3):
+                diceView.setImageResource(R.drawable.dice3);
+                break;
+            case(4):
+                diceView.setImageResource(R.drawable.dice4);
+                break;
+            case(5):
+                diceView.setImageResource(R.drawable.dice5);
+                break;
+            case(6):
+                diceView.setImageResource(R.drawable.dice6);
+                break;
+            default:
+                break;
         }
 
-
+        if (rolled != 1) {
+            currentTurn += rolled;
+            turnScoreText.setText(Integer.toString(currentTurn), TextView.BufferType.EDITABLE);
+        }
     }
 
     public void hold() {
@@ -92,9 +116,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void changePlayers() {
         currentTurn = 0;
-        ((EditText) findViewById(R.id.turnScoreText)).setText(Integer.toString(currentTurn), TextView.BufferType.EDITABLE);
+        turnScoreText.setText(Integer.toString(currentTurn), TextView.BufferType.EDITABLE);
 
-        String message = "";
+        String message;
         if (whosTurn == Players.PLAYER) {
             whosTurn = Players.COMPUTER;
             message = "It's Computer's Turn";
@@ -135,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         currentTurn = 0;
         ((EditText) findViewById(R.id.playerScoreText)).setText("0", TextView.BufferType.EDITABLE);
         ((EditText) findViewById(R.id.computerScoreText)).setText("0", TextView.BufferType.EDITABLE);
-        ((EditText) findViewById(R.id.rollText)).setText("0", TextView.BufferType.EDITABLE);
-        ((EditText) findViewById(R.id.turnScoreText)).setText("0", TextView.BufferType.EDITABLE);
+        turnScoreText.setText("0", TextView.BufferType.EDITABLE);
     }
 }
