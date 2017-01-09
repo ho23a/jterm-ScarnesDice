@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         currentTurn = 0;
         whosTurn = Players.PLAYER;
         String message = "It's Your Turn";
-        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
         toast.show();
 
         ((Button) findViewById(R.id.rollButton)).setOnClickListener(new View.OnClickListener() {
@@ -62,16 +62,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void roll() {
         int rolled = rollDice();
-
-        String message = String.format("%s rolled a %d", whosTurn.toString(), rolled);
-        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
-        toast.show();
+        ((EditText) findViewById(R.id.rollText)).setText(Integer.toString(rolled), TextView.BufferType.EDITABLE);
 
         if (rolled == 1) {
             changePlayers();
         } else {
             currentTurn += rolled;
+            ((EditText) findViewById(R.id.turnScoreText)).setText(Integer.toString(currentTurn), TextView.BufferType.EDITABLE);
         }
+
+
     }
 
     public void hold() {
@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void changePlayers() {
         currentTurn = 0;
+        ((EditText) findViewById(R.id.turnScoreText)).setText(Integer.toString(currentTurn), TextView.BufferType.EDITABLE);
 
         String message = "";
         if (whosTurn == Players.PLAYER) {
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
             whosTurn = Players.PLAYER;
             message = "It's Your Turn";
         }
-        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT);
+        toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
         toast.show();
     }
 
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         playerTotal += currentTurn;
         ((EditText) findViewById(R.id.playerScoreText)).setText(Integer.toString(playerTotal), TextView.BufferType.EDITABLE);
         if (playerTotal >= WIN_SCORE) {
-            toast = Toast.makeText(getApplicationContext(), "You Won!", Toast.LENGTH_SHORT);
+            toast = Toast.makeText(getApplicationContext(), "You Won!", Toast.LENGTH_LONG);
             toast.show();
         } else {
             changePlayers();
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
         computerTotal += currentTurn;
         ((EditText) findViewById(R.id.computerScoreText)).setText(Integer.toString(computerTotal), TextView.BufferType.EDITABLE);
         if (computerTotal >= WIN_SCORE) {
-            toast = Toast.makeText(getApplicationContext(), "Sorry, you lost! Computer Won!", Toast.LENGTH_SHORT);
+            toast = Toast.makeText(getApplicationContext(), "Sorry, you lost! Computer Won!", Toast.LENGTH_LONG);
             toast.show();
         } else {
             changePlayers();
@@ -132,7 +133,9 @@ public class MainActivity extends AppCompatActivity {
         computerTotal = 0;
         whosTurn = Players.PLAYER;
         currentTurn = 0;
-        ((EditText) findViewById(R.id.playerScoreText)).setText(Integer.toString(playerTotal), TextView.BufferType.EDITABLE);
-        ((EditText) findViewById(R.id.computerScoreText)).setText(Integer.toString(computerTotal), TextView.BufferType.EDITABLE);
+        ((EditText) findViewById(R.id.playerScoreText)).setText("0", TextView.BufferType.EDITABLE);
+        ((EditText) findViewById(R.id.computerScoreText)).setText("0", TextView.BufferType.EDITABLE);
+        ((EditText) findViewById(R.id.rollText)).setText("0", TextView.BufferType.EDITABLE);
+        ((EditText) findViewById(R.id.turnScoreText)).setText("0", TextView.BufferType.EDITABLE);
     }
 }
