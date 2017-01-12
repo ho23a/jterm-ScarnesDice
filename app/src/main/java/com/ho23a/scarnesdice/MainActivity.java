@@ -1,5 +1,6 @@
 package com.ho23a.scarnesdice;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,17 +15,23 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private static final int MAX_ROLL = 6;
-    private static final int WIN_SCORE = 50;
+    private static final int WIN_SCORE = 25;
     private static final double DECISION_SCORE = 10.5;
+
     private final Handler timerHandler = new Handler();
+    private Random random = new Random();
+
     private int playerTotal;
     private int computerTotal;
     private int currentTurn;
+    private boolean gameWon;
+
     private Players whosTurn;
-    private Random random = new Random();
     private ImageView diceView;
     private EditText turnScoreText;
-    private boolean gameWon;
+    private TextView playerScoreText;
+    private TextView computerScoreText;
+    private TextView actionText;
 
     enum Players {
         YOU,
@@ -79,10 +86,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void computerTurn() {
-        roll();
-
         if (computerTotal + currentTurn >= WIN_SCORE || (currentTurn > DECISION_SCORE)) {
-            addComputerScore(currentTurn);
+            hold();
+        } else {
+            roll();
         }
     }
 
@@ -92,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         switch(rolled) {
             case(1):
                 diceView.setImageResource(R.drawable.dice1);
-                Toast toast = Toast.makeText(getApplicationContext(), whosTurn.toString() + " rolled an 1!", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(getApplicationContext(), R.string.change_player, Toast.LENGTH_SHORT);
                 toast.show();
                 changePlayers();
                 break;
@@ -118,6 +125,9 @@ public class MainActivity extends AppCompatActivity {
         if (rolled != 1) {
             currentTurn += rolled;
             turnScoreText.setText(Integer.toString(currentTurn));
+            checkForWin();
+        } else {
+            changePlayers();
         }
     }
 
@@ -127,10 +137,13 @@ public class MainActivity extends AppCompatActivity {
         } else {
             addComputerScore(currentTurn);
         }
+        changePlayers();
+//        String.format(getString(R.string.))
     }
 
     public void reset() {
         resetScore();
+//        enableButtons();
     }
 
     private int rollDice() {
@@ -147,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
             whosTurn = Players.YOU;
             message = "Your Turn";
         }
-        ((TextView) findViewById(R.id.whosTurnText)).setText(message);
+        ((TextView) findViewById(R.id.actionText)).setText(message);
 
         currentTurn = 0;
         turnScoreText.setText(Integer.toString(currentTurn));
@@ -156,29 +169,34 @@ public class MainActivity extends AppCompatActivity {
     private void addPlayerScore(int currentTurn) {
         playerTotal += currentTurn;
         ((EditText) findViewById(R.id.playerScoreText)).setText(Integer.toString(playerTotal));
-
-        if (playerTotal >= WIN_SCORE) {
-            Toast toast = Toast.makeText(getApplicationContext(), "You Won!", Toast.LENGTH_LONG);
-            toast.show();
-            gameWon = true;
-            disableButtons();
-        } else {
-            changePlayers();
-        }
     }
 
     private void addComputerScore(int currentTurn) {
         computerTotal += currentTurn;
         ((EditText) findViewById(R.id.computerScoreText)).setText(Integer.toString(computerTotal));
+    }
 
-        if (computerTotal >= WIN_SCORE) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Sorry, you lost! Computer Won!", Toast.LENGTH_LONG);
-            toast.show();
-            gameWon = true;
-            disableButtons();
-        } else {
-            changePlayers();
+    private void checkForWin() {
+        if (whosTurn == Players.YOU && playerTotal + currentTurn >= WIN_SCORE) {
+            playerWins();
+        } else if (whosTurn == Players.COMPUTER && computerTotal + currentTurn >= WIN_SCORE) {
+            computerWins();
         }
+    }
+
+    public static final String USER_SCORE = "com.ho23a.scarnesdice.USER_SCORE";
+    private void playerWins() {
+        gameWon = true;
+        Intent intent = new Intent(this, WinActivity.class);
+        intent.putExtra(USER_SCORE, String.valueOf(playerTotal + currentTurn));
+        startActivity(intent);
+        resetScore();
+    }
+
+    private void computerWins() {
+        gameWon = true;
+        startActivity(new Intent(this, LoseActivity.class));
+        resetScore();
     }
 
     private void resetScore() {
@@ -189,9 +207,8 @@ public class MainActivity extends AppCompatActivity {
         gameWon = false;
         ((EditText) findViewById(R.id.playerScoreText)).setText("0");
         ((EditText) findViewById(R.id.computerScoreText)).setText("0");
-        ((TextView) findViewById(R.id.whosTurnText)).setText("Your Turn");
+        ((TextView) findViewById(R.id.actionText)).setText(R.string.player_turn);
         turnScoreText.setText("0");
-        enableButtons();
     }
 
     private void disableButtons() {

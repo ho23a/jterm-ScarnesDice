@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">ScarnesDice</string>
+    <string name="player_turn">Your Turn</string>
+    <string name="change_player">Rolled a 1! Changing player!</string>
+    <string name="player_won">You won!</string>
+    <string name="computer_won">Sorry, you lost! Computer Won!</string>
 </resources>
