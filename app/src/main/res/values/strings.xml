@@ -4,4 +4,5 @@
     <string name="change_player">Rolled a 1! Changing player!</string>
     <string name="player_won">You won!</string>
     <string name="computer_won">Sorry, you lost! Computer Won!</string>
+    <string name="sign_in">Sign In</string>
 </resources>
